@@ -1,4 +1,4 @@
-namespace SimpleMu.Homepage.Data;
+namespace SimpleMu.API;
 
 public class WeatherForecast
 {

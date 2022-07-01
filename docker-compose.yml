@@ -2,15 +2,16 @@ version: "3.3"
 
 services:
   redis:
+    ports:
+      - "6379:6379"
     image: redis:latest
-    command: bash -c "redis-server --appendonly yes"
-    volumes:
-      - ./cache:/data
   db:
     image: postgres
+    ports:
+      - "5432:5432"
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=simplemu
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
