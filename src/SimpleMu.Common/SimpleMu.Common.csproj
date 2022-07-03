@@ -7,7 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\SimpleMu.Common\SimpleMu.Common.csproj" />
+      <PackageReference Include="System.Reactive" Version="5.0.0" />
+      <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
+      <PackageReference Include="System.Text.Json" Version="7.0.0-preview.5.22301.12" />
     </ItemGroup>
 
 </Project>
