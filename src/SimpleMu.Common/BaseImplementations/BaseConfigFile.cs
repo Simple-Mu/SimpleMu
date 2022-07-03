@@ -1,27 +1,76 @@
-﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using SimpleMu.Common.Extensions;
+﻿using System.Reflection;
+using System.Text.Json;
 using SimpleMu.Common.Interfaces;
 
 namespace SimpleMu.Common.BaseImplementations;
 
-public abstract class BaseConfigFile : IConfigFile
+public abstract class BaseConfigFile : BaseReloadableFile,  IConfigFile
 {
-    public           string              FileName    { get; }
-    public           string              FullPath    { get; }
-    public           IObservable<string> FileChanged { get; }
-    private readonly Subject<string>     _fileChanged = new();
-
-    public BaseConfigFile(string fileName)
+    protected BaseConfigFile(string fileName) : base(fileName)
     {
-        FileName = fileName;
-        FullPath = $"{AppDomain.CurrentDomain.BaseDirectory}\\Config\\{fileName}";
-        FileHelpers.Create(FullPath);
-        FileChanged = _fileChanged.AsObservable();
     }
 
-    public void NotifyFileChanged(string content)
+    public override void NotifyFileChanged()
     {
-        _fileChanged.OnNext(content);
+        UpdateValues();
+        base.NotifyFileChanged();
+    }
+
+    public void UpdateValues()
+    {
+        if (string.IsNullOrEmpty(FileContent))
+        {
+            return;
+        }
+        
+        var json = JsonDocument.Parse(FileContent);
+        var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+        foreach (var property in properties)
+        {
+            var jsonProperty = json.RootElement.GetProperty(property.Name);
+
+            switch (jsonProperty.ValueKind)
+            {
+                case JsonValueKind.Undefined:
+                    property.SetValue(this, null);
+                    break;
+                case JsonValueKind.Object:
+                    break;
+                case JsonValueKind.Array:
+                    break;
+                case JsonValueKind.String:
+                    var value = jsonProperty.GetRawText();
+                    property.SetValue(this, value);
+                    break;
+                case JsonValueKind.Number:
+                    switch (Type.GetTypeCode(property.PropertyType))
+                    {
+                        case TypeCode.Int32:
+                            property.SetValue(this, jsonProperty.GetInt32());
+                            break;
+                        case TypeCode.Double:
+                            property.SetValue(this, jsonProperty.GetDouble());
+                            break;
+                        case TypeCode.UInt32:
+                            property.SetValue(this, jsonProperty.GetUInt32());
+                            break;
+                    }
+                    break;
+                case JsonValueKind.True:
+                    property.SetValue(this, true);
+                    break;
+                case JsonValueKind.False:
+                    property.SetValue(this, false);
+                    break;
+                case JsonValueKind.Null:
+                    property.SetValue(this, null);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        
+        NotifyFileUpdated();
     }
 }

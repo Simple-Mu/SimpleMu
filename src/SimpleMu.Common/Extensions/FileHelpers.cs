@@ -36,4 +36,12 @@ public static class FileHelpers
             return false;
         }
     }
+
+    public static string ReadNonBlock(string path)
+    {
+        using var fs          = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var sr          = new StreamReader(fs);
+        var       fileContent = sr.ReadToEnd();
+        return fileContent;
+    }
 }
