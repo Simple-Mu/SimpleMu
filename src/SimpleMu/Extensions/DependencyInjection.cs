@@ -4,9 +4,8 @@ using Serilog;
 
 namespace SimpleMu.Extensions;
 
-public static class DependecyInjection
+public static class DependencyInjection
 {
-
     public static void LoadAssemblies()
     {
         var references = Directory.EnumerateFiles(AppDomain.CurrentDomain.BaseDirectory, "SimpleMu*.dll");
@@ -15,15 +14,20 @@ public static class DependecyInjection
             Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(reference)));
         }
         
-        Assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        _assemblies = AppDomain.CurrentDomain.GetAssemblies();
     }
 
-    private static Assembly[] Assemblies;
+    private static Assembly[]? _assemblies;
 
     public static void RegisterTypes<T>(this IServiceCollection services)
     {
+        if(_assemblies == null)
+        {
+            throw new Exception("Assemblies not loaded");
+        }
+
         Log.Information($"Registering types for {typeof(T).Name}");
-        services.Scan(scan => scan.FromAssemblies(Assemblies).AddClasses(classes => classes.AssignableTo<T>())
+        services.Scan(scan => scan.FromAssemblies(_assemblies).AddClasses(classes => classes.AssignableTo<T>())
                                   .AsSelf().As<T>().WithSingletonLifetime());
     }
 }

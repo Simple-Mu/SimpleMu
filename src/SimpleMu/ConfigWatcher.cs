@@ -12,21 +12,20 @@ public class ConfigWatcher : IInitializer
     {
         FileHelpers.Create("Config");
         _configFiles                   = configFiles;
-        _watcher                       = new FileSystemWatcher($"{AppDomain.CurrentDomain.BaseDirectory}\\Config");
-        _watcher.NotifyFilter          = NotifyFilters.LastWrite;
-        _watcher.Filter                = "*.json";
-        _watcher.IncludeSubdirectories = true;
-        _watcher.EnableRaisingEvents   = true;
+        var watcher = new FileSystemWatcher($"{AppDomain.CurrentDomain.BaseDirectory}\\Config");
+        watcher.NotifyFilter          = NotifyFilters.LastWrite;
+        watcher.Filter                = "*.json";
+        watcher.IncludeSubdirectories = true;
+        watcher.EnableRaisingEvents   = true;
+        
+        _fileChanged = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(ev => watcher.Changed += ev,
+         ev => watcher.Changed -= ev).Select(x => x.EventArgs);
     }
 
-    private readonly FileSystemWatcher                _watcher;
-    private          IObservable<FileSystemEventArgs> _fileChanged;
+    private readonly IObservable<FileSystemEventArgs> _fileChanged;
 
     public void Initialize()
     {
-        _fileChanged = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(ev => _watcher.Changed += ev,
-                                                                     ev => _watcher.Changed -= ev).Select(x => x.EventArgs);
-        
         //Debounce for one second to prevent multiple config reloads on file change.
         _fileChanged.Throttle(TimeSpan.FromSeconds(1)).Subscribe(OnFileChanged);
     }

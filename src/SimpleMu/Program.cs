@@ -1,4 +1,4 @@
-﻿DependecyInjection.LoadAssemblies();
+﻿DependencyInjection.LoadAssemblies();
 
 var builder = Host.CreateApplicationBuilder();
 
