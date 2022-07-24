@@ -3,7 +3,7 @@
 public static class FileHelpers
 {
     /// <summary>
-    /// Creates path or file if it doesn't exist.
+    ///     Creates path or file if it doesn't exist.
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns></returns>
@@ -13,21 +13,21 @@ public static class FileHelpers
         try
         {
             var directory = Path.GetDirectoryName(filePath);
-            if(directory == null || string.IsNullOrEmpty(directory))
+            if (directory == null || string.IsNullOrEmpty(directory))
             {
                 directory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, filePath);
             }
-            
+
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
-            
-            if(File.Exists(filePath))
+
+            if (File.Exists(filePath))
             {
                 return false;
             }
-            
+
             File.Create(filePath).Close();
             return true;
         }

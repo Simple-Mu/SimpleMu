@@ -4,7 +4,7 @@ using SimpleMu.Common.Interfaces;
 
 namespace SimpleMu.Common.BaseImplementations;
 
-public abstract class BaseConfigFile : BaseReloadableFile,  IConfigFile
+public abstract class BaseConfigFile : BaseReloadableFile, IConfigFile
 {
     protected BaseConfigFile(string fileName) : base(fileName)
     {
@@ -22,9 +22,10 @@ public abstract class BaseConfigFile : BaseReloadableFile,  IConfigFile
         {
             return;
         }
-        
+
         var json = JsonDocument.Parse(FileContent);
-        var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        var properties =
+            GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
         foreach (var property in properties)
         {
@@ -56,6 +57,7 @@ public abstract class BaseConfigFile : BaseReloadableFile,  IConfigFile
                             property.SetValue(this, jsonProperty.GetUInt32());
                             break;
                     }
+
                     break;
                 case JsonValueKind.True:
                     property.SetValue(this, true);
@@ -70,7 +72,7 @@ public abstract class BaseConfigFile : BaseReloadableFile,  IConfigFile
                     throw new ArgumentOutOfRangeException();
             }
         }
-        
+
         NotifyFileUpdated();
     }
 }

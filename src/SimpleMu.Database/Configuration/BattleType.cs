@@ -1,21 +1,17 @@
-﻿// <copyright file="BattleType.cs" company="MUnique">
-// Licensed under the MIT License. See LICENSE file in the project root for full license information.
-// </copyright>
-
-namespace SimpleMu.Database.Configuration;
+﻿namespace SimpleMu.Database.Configuration;
 
 /// <summary>
-/// Defines the type of battle which can be done on a battle zone between two teams.
+///     Defines the type of battle which can be done on a battle zone between two teams.
 /// </summary>
 public enum BattleType
 {
     /// <summary>
-    /// A normal pvp battle.
+    ///     A normal pvp battle.
     /// </summary>
     Normal,
 
     /// <summary>
-    /// A battle soccer match.
+    ///     A battle soccer match.
     /// </summary>
-    Soccer,
+    Soccer
 }

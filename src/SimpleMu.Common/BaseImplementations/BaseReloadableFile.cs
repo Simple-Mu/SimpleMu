@@ -5,12 +5,6 @@ namespace SimpleMu.Common.BaseImplementations;
 
 public abstract class BaseReloadableFile : IReloadableFile
 {
-    public string                             FileName    { get; }
-    public string                             FullPath    { get; }
-    public string                             FileContent { get; set; }
-    public event EventDelegates.VoidDelegate? FileChanged;
-    public event EventDelegates.VoidDelegate? FileUpdated;
-
     public BaseReloadableFile(string fileName)
     {
         FileName = fileName;
@@ -19,11 +13,17 @@ public abstract class BaseReloadableFile : IReloadableFile
         FileContent = FileHelpers.ReadNonBlock(FullPath);
     }
 
+    public string                             FileName    { get; }
+    public string                             FullPath    { get; }
+    public string                             FileContent { get; set; }
+    public event EventDelegates.VoidDelegate? FileChanged;
+    public event EventDelegates.VoidDelegate? FileUpdated;
+
     public virtual void NotifyFileChanged()
     {
         FileChanged?.Invoke();
     }
-    
+
     public virtual void NotifyFileUpdated()
     {
         FileUpdated?.Invoke();

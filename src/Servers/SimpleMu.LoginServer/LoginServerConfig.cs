@@ -1,5 +1,4 @@
 ﻿using SimpleMu.Common.BaseImplementations;
-using SimpleMu.Common.Interfaces;
 
 namespace SimpleMu.LoginServer;
 

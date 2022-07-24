@@ -1,26 +1,22 @@
-﻿// <copyright file="MiniGameMapCreationPolicy.cs" company="MUnique">
-// Licensed under the MIT License. See LICENSE file in the project root for full license information.
-// </copyright>
-
-namespace SimpleMu.Database.Configuration;
+﻿namespace SimpleMu.Database.Configuration;
 
 /// <summary>
-/// Defines how a mini game map is created.
+///     Defines how a mini game map is created.
 /// </summary>
 public enum MiniGameMapCreationPolicy
 {
     /// <summary>
-    /// One map is created per party and game level.
+    ///     One map is created per party and game level.
     /// </summary>
     OnePerParty,
 
     /// <summary>
-    /// One map is created for each player.
+    ///     One map is created for each player.
     /// </summary>
     OnePerPlayer,
 
     /// <summary>
-    /// One map is created and shared for all players.
+    ///     One map is created and shared for all players.
     /// </summary>
-    Shared,
+    Shared
 }

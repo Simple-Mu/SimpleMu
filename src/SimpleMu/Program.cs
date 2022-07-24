@@ -13,9 +13,9 @@ builder.Services.RegisterTypes<IServer>();
 var app = builder.Build();
 
 var initializers = app.Services.GetServices<IInitializer>().ToList();
-var servers = app.Services.GetServices<IServer>().ToList();
-var configFiles = app.Services.GetServices<IConfigFile>().ToList();
-var reloadable = app.Services.GetServices<IReloadableFile>().ToList();
+var servers      = app.Services.GetServices<IServer>().ToList();
+var configFiles  = app.Services.GetServices<IConfigFile>().ToList();
+var reloadable   = app.Services.GetServices<IReloadableFile>().ToList();
 
 initializers.ForEach(i => i.Initialize());
 servers.ForEach(i => i.Start());

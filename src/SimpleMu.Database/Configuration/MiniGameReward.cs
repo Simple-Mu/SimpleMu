@@ -1,38 +1,35 @@
-﻿// <copyright file="MiniGameReward.cs" company="MUnique">
-// Licensed under the MIT License. See LICENSE file in the project root for full license information.
-// </copyright>
-
-using System.Text;
+﻿using System.Text;
 
 namespace SimpleMu.Database.Configuration;
 
 /// <summary>
-/// Defines a reward of a <see cref="MiniGameDefinition"/>.
+///     Defines a reward of a <see cref="MiniGameDefinition" />.
 /// </summary>
 public class MiniGameReward
 {
     /// <summary>
-    /// Gets or sets the rank to which this reward is applicable.
-    /// It's applicable, when more than one player can complete the mini game and
-    /// you'd want to give different awards for a differently ranked players.
+    ///     Gets or sets the rank to which this reward is applicable.
+    ///     It's applicable, when more than one player can complete the mini game and
+    ///     you'd want to give different awards for a differently ranked players.
     /// </summary>
     public int? Rank { get; set; }
 
     /// <summary>
-    /// Gets or sets the reward type.
+    ///     Gets or sets the reward type.
     /// </summary>
     public MiniGameRewardType RewardType { get; set; }
 
     /// <summary>
-    /// Gets or sets the amount of the rewards.
-    /// In case of <see cref="MiniGameRewardType.Money"/> it's the amount of money.
-    /// In case of <see cref="MiniGameRewardType.Experience"/> it's the amount of experience.
-    /// In case of <see cref="MiniGameRewardType.Item"/> it's the amount of <see cref="ItemReward"/>.
+    ///     Gets or sets the amount of the rewards.
+    ///     In case of <see cref="MiniGameRewardType.Money" /> it's the amount of money.
+    ///     In case of <see cref="MiniGameRewardType.Experience" /> it's the amount of experience.
+    ///     In case of <see cref="MiniGameRewardType.Item" /> it's the amount of <see cref="ItemReward" />.
     /// </summary>
     public int RewardAmount { get; set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="DropItemGroup"/> of this reward, if <see cref="RewardType"/> is <see cref="MiniGameRewardType.Item"/>.
+    ///     Gets or sets the <see cref="DropItemGroup" /> of this reward, if <see cref="RewardType" /> is
+    ///     <see cref="MiniGameRewardType.Item" />.
     /// </summary>
     public virtual DropItemGroup? ItemReward { get; set; }
 
@@ -40,16 +37,16 @@ public class MiniGameReward
     public override string ToString()
     {
         var result = new StringBuilder();
-        if (this.Rank.HasValue)
+        if (Rank.HasValue)
         {
-            result.Append("Rank ").Append(this.Rank.Value).Append(": ");
+            result.Append("Rank ").Append(Rank.Value).Append(": ");
         }
 
-        result.Append(this.RewardType.ToString()).Append(" ").Append(this.RewardAmount);
+        result.Append(RewardType.ToString()).Append(" ").Append(RewardAmount);
 
-        if (this.ItemReward != null)
+        if (ItemReward != null)
         {
-            result.Append(" ").Append(this.ItemReward.Description);
+            result.Append(" ").Append(ItemReward.Description);
         }
 
         return result.ToString();

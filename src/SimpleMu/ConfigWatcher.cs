@@ -1,6 +1,5 @@
 ﻿using System.Reactive.Linq;
 using SimpleMu.Common.Extensions;
-using SimpleMu.Common.Interfaces;
 
 namespace SimpleMu;
 
@@ -8,21 +7,22 @@ public class ConfigWatcher : IInitializer
 {
     private readonly IEnumerable<IReloadableFile> _configFiles;
 
+    private readonly IObservable<FileSystemEventArgs> _fileChanged;
+
     public ConfigWatcher(IEnumerable<IReloadableFile> configFiles)
     {
         FileHelpers.Create("Config");
-        _configFiles                   = configFiles;
+        _configFiles = configFiles;
         var watcher = new FileSystemWatcher($"{AppDomain.CurrentDomain.BaseDirectory}\\Config");
         watcher.NotifyFilter          = NotifyFilters.LastWrite;
         watcher.Filter                = "*.json";
         watcher.IncludeSubdirectories = true;
         watcher.EnableRaisingEvents   = true;
-        
-        _fileChanged = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(ev => watcher.Changed += ev,
-         ev => watcher.Changed -= ev).Select(x => x.EventArgs);
-    }
 
-    private readonly IObservable<FileSystemEventArgs> _fileChanged;
+        _fileChanged = Observable
+                      .FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(ev => watcher.Changed += ev,
+                        ev => watcher.Changed -= ev).Select(x => x.EventArgs);
+    }
 
     public void Initialize()
     {
@@ -37,7 +37,7 @@ public class ConfigWatcher : IInitializer
         {
             return;
         }
-        
+
         configFile.FileContent = File.ReadAllText(e.FullPath);
 
         configFile.NotifyFileChanged();

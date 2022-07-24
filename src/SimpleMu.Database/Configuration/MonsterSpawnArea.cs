@@ -1,115 +1,111 @@
-﻿// <copyright file="MonsterSpawnArea.cs" company="MUnique">
-// Licensed under the MIT License. See LICENSE file in the project root for full license information.
-// </copyright>
-
-namespace SimpleMu.Database.Configuration;
+﻿namespace SimpleMu.Database.Configuration;
 
 /// <summary>
-/// Defines the trigger when a monster spawns.
+///     Defines the trigger when a monster spawns.
 /// </summary>
 public enum SpawnTrigger
 {
     /// <summary>
-    /// The monster spawns and respawns automatically.
+    ///     The monster spawns and respawns automatically.
     /// </summary>
     Automatic,
 
     /// <summary>
-    /// The monster spawns automatically during an event.
+    ///     The monster spawns automatically during an event.
     /// </summary>
     AutomaticDuringEvent,
 
     /// <summary>
-    /// The monster spawns just once at the beginning of an event.
+    ///     The monster spawns just once at the beginning of an event.
     /// </summary>
     /// <remarks>
-    /// For example blood castle gates, statues. Also golden monsters.
+    ///     For example blood castle gates, statues. Also golden monsters.
     /// </remarks>
     OnceAtEventStart,
 
     /// <summary>
-    /// The monster spawns automatically during a wave of an event.
+    ///     The monster spawns automatically during a wave of an event.
     /// </summary>
     /// <remarks>
-    /// For example, at devil square different monsters spawn in different waves.
+    ///     For example, at devil square different monsters spawn in different waves.
     /// </remarks>
     AutomaticDuringWave,
 
     /// <summary>
-    /// The monster spawns once at the start of a wave of an event.
+    ///     The monster spawns once at the start of a wave of an event.
     /// </summary>
     /// <remarks>
-    /// For example, at devil square there is a wave of bosses, which spawn only once.
+    ///     For example, at devil square there is a wave of bosses, which spawn only once.
     /// </remarks>
-    OnceAtWaveStart,
+    OnceAtWaveStart
 }
 
 /// <summary>
-/// Defines an monster spawn area.
+///     Defines an monster spawn area.
 /// </summary>
 public class MonsterSpawnArea
 {
     /// <summary>
-    /// Gets or sets the monster definition.
+    ///     Gets or sets the monster definition.
     /// </summary>
     public virtual MonsterDefinition? MonsterDefinition { get; set; }
 
     /// <summary>
-    /// Gets or sets the game map.
+    ///     Gets or sets the game map.
     /// </summary>
     public virtual GameMapDefinition? GameMap { get; set; }
 
     /// <summary>
-    /// Gets or sets the upper left corner x coordinate.
+    ///     Gets or sets the upper left corner x coordinate.
     /// </summary>
     public byte X1 { get; set; }
 
     /// <summary>
-    /// Gets or sets the upper left corner y coordinate.
+    ///     Gets or sets the upper left corner y coordinate.
     /// </summary>
     public byte Y1 { get; set; }
 
     /// <summary>
-    /// Gets or sets the bottom right corner x coordinate.
+    ///     Gets or sets the bottom right corner x coordinate.
     /// </summary>
     public byte X2 { get; set; }
 
     /// <summary>
-    /// Gets or sets the bottom right corner y coordinate.
+    ///     Gets or sets the bottom right corner y coordinate.
     /// </summary>
     public byte Y2 { get; set; }
 
     /// <summary>
-    /// Gets or sets the looking direction when spawning.
+    ///     Gets or sets the looking direction when spawning.
     /// </summary>
     public Direction Direction { get; set; }
 
     /// <summary>
-    /// Gets or sets the quantity of monsters which should spawn in the defined area.
+    ///     Gets or sets the quantity of monsters which should spawn in the defined area.
     /// </summary>
     public short Quantity { get; set; }
 
     /// <summary>
-    /// Gets or sets the spawn trigger.
+    ///     Gets or sets the spawn trigger.
     /// </summary>
     public SpawnTrigger SpawnTrigger { get; set; }
 
     /// <summary>
-    /// Gets or sets the wave to which this spawn area belongs to.
+    ///     Gets or sets the wave to which this spawn area belongs to.
     /// </summary>
     public byte WaveNumber { get; set; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override string ToString()
     {
-        var isPoint = this.X1 == this.X2 && this.Y1 == this.Y2;
+        var isPoint = X1 == X2 && Y1 == Y2;
         var result = isPoint
-            ? $"{this.MonsterDefinition?.Designation} - Quantity: {this.Quantity} - At: {this.X1}/{this.Y1}"
-            : $"{this.MonsterDefinition?.Designation} - Quantity: {this.Quantity} - Area: {this.X1}/{this.Y1} to {this.X2}/{this.Y2}";
+                         ? $"{MonsterDefinition?.Designation} - Quantity: {Quantity} - At: {X1}/{Y1}"
+                         : $"{MonsterDefinition?.Designation} - Quantity: {Quantity} - Area: {X1}/{Y1} to {X2}/{Y2}";
 
-        if (this.SpawnTrigger == SpawnTrigger.AutomaticDuringWave || this.SpawnTrigger == SpawnTrigger.OnceAtWaveStart)
+        if (SpawnTrigger == SpawnTrigger.AutomaticDuringWave || SpawnTrigger == SpawnTrigger.OnceAtWaveStart)
         {
-            result += $" - Wave: {this.WaveNumber}";
+            result += $" - Wave: {WaveNumber}";
         }
 
         return result;
