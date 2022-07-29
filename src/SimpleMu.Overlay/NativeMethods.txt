@@ -1,0 +1,15 @@
+﻿//Windows Helpers
+FindWindow
+GetWindowLong
+SetWindowLong
+
+//User32
+ScreenToClient
+SetFocus
+GetCursorPos
+
+//DWM
+DwmExtendFrameIntoClientArea
+
+//Consts
+WINDOW_EX_STYLE

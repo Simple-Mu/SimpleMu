@@ -1,5 +1,10 @@
-﻿using Silk.NET.GLFW;
+﻿using Windows.Win32.Foundation;
+using Windows.Win32.UI.Controls;
+using Windows.Win32.UI.WindowsAndMessaging;
+using Silk.NET.GLFW;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using static Windows.Win32.PInvoke;
 
 namespace SimpleMu.Overlay;
 
@@ -13,7 +18,7 @@ public abstract class OverlayBase
         {
             unsafe
             {
-                glfw.SetWindowTitle(WindowHandle, value);
+                _glfw.SetWindowTitle(GlfwWindow, value);
                 _title = value;
             }
         }
@@ -21,10 +26,11 @@ public abstract class OverlayBase
 
     public unsafe void Focus()
     {
-        glfw.FocusWindow(WindowHandle);
+        _glfw.FocusWindow(GlfwWindow);
     }
 
-    internal unsafe WindowHandle*   WindowHandle;
+    internal unsafe WindowHandle*   GlfwWindow;
+    internal HWND           Win32Window;
     //private         ImGuiController _imGuiController;
 
     public void Start()
@@ -45,61 +51,61 @@ public abstract class OverlayBase
     public int Width { get; set; }
     public int Height { get; set; }
     
-    private static Glfw glfw = Glfw.GetApi();
+    private static Glfw _glfw = Glfw.GetApi();
     private static GL   gl;
 
     //Creates windows and starts render thread
     private unsafe void StartRenderThread()
     {
-        glfw.Init();
-        glfw.SetErrorCallback((error, description) => Console.WriteLine($"GLFW Error({error}): {description}"));
+        _glfw.Init();
+        _glfw.SetErrorCallback((error, description) => Console.WriteLine($"GLFW Error({error}): {description}"));
 
         //Window hints
-        glfw.WindowHint(WindowHintBool.TransparentFramebuffer, true);
-        glfw.WindowHint(WindowHintBool.Decorated,              false);
-        glfw.WindowHint(WindowHintBool.Focused,                true);
-        glfw.WindowHint(WindowHintBool.Visible,                false);
-        glfw.WindowHint(WindowHintBool.Resizable,              false);
-        glfw.WindowHint(WindowHintBool.Floating,               true);
+        _glfw.WindowHint(WindowHintBool.TransparentFramebuffer, true);
+        _glfw.WindowHint(WindowHintBool.Decorated,              false);
+        _glfw.WindowHint(WindowHintBool.Focused,                true);
+        _glfw.WindowHint(WindowHintBool.Visible,                false);
+        _glfw.WindowHint(WindowHintBool.Resizable,              false);
+        _glfw.WindowHint(WindowHintBool.Floating,               true);
 
         //Configuring OpenGL
-        glfw.WindowHint(WindowHintClientApi.ClientApi,         ClientApi.OpenGL);
-        glfw.WindowHint(WindowHintInt.ContextVersionMajor,     4);
-        glfw.WindowHint(WindowHintInt.ContextVersionMinor,     0);
-        glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Any);
-        glfw.WindowHint(WindowHintBool.OpenGLForwardCompat,    true);
-        glfw.WindowHint(WindowHintBool.OpenGLDebugContext,     true);
+        _glfw.WindowHint(WindowHintClientApi.ClientApi,         ClientApi.OpenGL);
+        _glfw.WindowHint(WindowHintInt.ContextVersionMajor,     4);
+        _glfw.WindowHint(WindowHintInt.ContextVersionMinor,     0);
+        _glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Any);
+        _glfw.WindowHint(WindowHintBool.OpenGLForwardCompat,    true);
+        _glfw.WindowHint(WindowHintBool.OpenGLDebugContext,     true);
 
         //Configuring Monitor
-        var primaryMonitor = glfw.GetPrimaryMonitor();
-        var videoMode      = glfw.GetVideoMode(primaryMonitor);
+        var primaryMonitor = _glfw.GetPrimaryMonitor();
+        var videoMode      = _glfw.GetVideoMode(primaryMonitor);
 
-        glfw.WindowHint(WindowHintInt.RedBits,     videoMode->RedBits);
-        glfw.WindowHint(WindowHintInt.GreenBits,   videoMode->GreenBits);
-        glfw.WindowHint(WindowHintInt.BlueBits,    videoMode->BlueBits);
-        glfw.WindowHint(WindowHintInt.RefreshRate, videoMode->RefreshRate);
+        _glfw.WindowHint(WindowHintInt.RedBits,     videoMode->RedBits);
+        _glfw.WindowHint(WindowHintInt.GreenBits,   videoMode->GreenBits);
+        _glfw.WindowHint(WindowHintInt.BlueBits,    videoMode->BlueBits);
+        _glfw.WindowHint(WindowHintInt.RefreshRate, videoMode->RefreshRate);
 
         Width = videoMode->Width;
         Height= videoMode->Height - 1;
 
         //Create window
-        WindowHandle = glfw.CreateWindow(Width, Height, _title, null, null);
+        GlfwWindow = _glfw.CreateWindow(Width, Height, _title, null, null);
 
         //Creates OpenGL context and IMGUI
-        glfw.MakeContextCurrent(WindowHandle);
-        var context = new GlfwContext(glfw, WindowHandle);
+        _glfw.MakeContextCurrent(GlfwWindow);
+        var context = new GlfwContext(_glfw, GlfwWindow);
         gl = GL.GetApi(context);
-        //GL.LoadBindings(provider);
         //_imGuiController = new ImGuiController(Width, Height);
         
         LoadAssets();
         
         //VSync ON
-        glfw.SwapInterval(1);
+        _glfw.SwapInterval(1);
         
         //Show window
-        glfw.ShowWindow(WindowHandle);
-        NativeMethods.InitTransparency(WindowHandle);
+        _glfw.ShowWindow(GlfwWindow);
+        Win32Window = FindWindow(null, _title);
+        InitTransparency(Win32Window);
 
         //Input
         //glfw.SetKeyCallback(WindowHandle, OnKey);
@@ -109,17 +115,17 @@ public abstract class OverlayBase
         PostStart();
         
         //Render loop
-        while (!glfw.WindowShouldClose(WindowHandle))
+        while (!_glfw.WindowShouldClose(GlfwWindow))
         {
-            glfw.PollEvents();
+            _glfw.PollEvents();
             //_imGuiController.Update(this, 1f);
             Frame();
             //_imGuiController.Render();
-            glfw.SwapBuffers(WindowHandle);
+            _glfw.SwapBuffers(GlfwWindow);
 
-            if (glfw.GetKey(WindowHandle, Keys.Escape) == (int)InputAction.Press)
+            if (_glfw.GetKey(GlfwWindow, Keys.Escape) == (int)InputAction.Press)
             {
-                glfw.SetWindowShouldClose(WindowHandle, true);
+                _glfw.SetWindowShouldClose(GlfwWindow, true);
             }
         }
     }
@@ -134,7 +140,7 @@ public abstract class OverlayBase
     public virtual void Frame()
     {
         gl.Clear(ClearCommand);
-        gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        gl.ClearColor(0.1f, 0.0f, 0.0f, 0.0f);
     }
 
     /*public MouseState MouseState { get; } = new();
@@ -166,4 +172,65 @@ public abstract class OverlayBase
         KeyboardState.SetKey(key, action is InputAction.Press or InputAction.Repeat);
         _imGuiController.PressChar((char)scancode);
     }*/
+    
+    private static int _gwlClickable   ;
+    private static int _gwlNotClickable;
+    
+    internal static bool IsClickable { get; private set; }
+    
+    internal static void InitTransparency(HWND handle)
+    {
+        var windowLong = (WINDOW_EX_STYLE)GetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        
+        windowLong |= WINDOW_EX_STYLE.WS_EX_TOOLWINDOW;
+        windowLong &= ~WINDOW_EX_STYLE.WS_EX_APPWINDOW;
+
+        _gwlClickable    = (int)windowLong;
+        _gwlNotClickable = (int)(windowLong | WINDOW_EX_STYLE.WS_EX_LAYERED | WINDOW_EX_STYLE.WS_EX_TRANSPARENT);
+
+        var margins = new MARGINS
+        {
+            cxLeftWidth    = -1,
+            cxRightWidth   = -1,
+            cyBottomHeight = -1,
+            cyTopHeight    = -1
+        };
+        
+        DwmExtendFrameIntoClientArea(handle, margins);
+        
+        //SetWindowLongPtr(handle, GWL_EXSTYLE, GWL_EXSTYLE_NOT_CLICKABLE);
+        SetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, _gwlNotClickable);
+        IsClickable = false;
+    }
+    
+    internal static void SetWindowClickable(HWND handle, bool wantClickable)
+    {
+        if (!IsClickable && wantClickable)
+        {
+            SetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, _gwlClickable);
+            SetFocus(handle);
+            IsClickable = true;
+            //Console.WriteLine("Clickable");
+            return;
+        }
+
+        if (IsClickable && !wantClickable)
+        {
+            SetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, _gwlNotClickable);
+            IsClickable = false;
+            //Console.WriteLine("Not clickable");
+        }
+    }
+    
+    internal static Vector2D<int> GetCursorPosition(HWND hWnd)
+    {
+        if (!GetCursorPos(out var lpPoint))
+        {
+            return Vector2D<int>.Zero;
+        }
+
+        ScreenToClient(hWnd, ref lpPoint);
+        var point = new Vector2D<int>(lpPoint.x, lpPoint.y);
+        return point;
+    }
 }
