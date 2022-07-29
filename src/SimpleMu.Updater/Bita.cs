@@ -13,30 +13,43 @@ public class Bita
         _bitaPath = bitaPath;
     }
 
-    public async Task Clone(string url, string outputPath)
+    public async Task<bool> Clone(string url, string outputPath)
     {
         var fileName       = FileNameFromUrlRegex.Match(url).Value;
         var outputFileName = Path.Join(outputPath, fileName);
         var result = await Cli.Wrap(_bitaPath)
-                              .WithArguments("clone")
-                              .WithArguments("--seed-output")
-                              .WithArguments(url)
-                              .WithArguments(outputFileName)
+                              .WithArguments(args =>
+                               {
+                                   args.Add("clone");
+                                   args.Add("--seed-output");
+                                   args.Add(url);
+                                   args.Add(outputFileName);
+                               })
                               .WithWorkingDirectory(outputPath)
+                               //.WithValidation(CommandResultValidation.None)
                               .ExecuteAsync();
+
+        return result.ExitCode == 0;
     }
 
-    public async Task Compress(string filePath, string? outputDirectory = null)
+    public async Task<bool> Compress(string filePath, string? outputDirectory = null)
     {
         outputDirectory ??= Path.GetDirectoryName(filePath);
         var outputFileName = $"{Path.GetFileName(filePath)}.cba";
         var output         = Path.Join(outputDirectory, outputFileName);
 
-        await Cli.Wrap(_bitaPath)
-                 .WithArguments("compress")
-                 .WithArguments($"-i {filePath}")
-                 .WithArguments(output)
-                 .WithWorkingDirectory(Path.GetDirectoryName(filePath) ?? throw new InvalidOperationException())
-                 .ExecuteAsync();
+        var result = await Cli.Wrap(_bitaPath)
+                              .WithArguments(args =>
+                               {
+                                   args.Add("compress");
+                                   args.Add($"-i {filePath}");
+                                   args.Add(output);
+                               })
+                              .WithWorkingDirectory(Path.GetDirectoryName(filePath) ??
+                                                    throw new InvalidOperationException())
+                               //.WithValidation(CommandResultValidation.None)
+                              .ExecuteAsync();
+
+        return result.ExitCode == 0;
     }
 }
